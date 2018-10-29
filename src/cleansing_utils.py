@@ -188,49 +188,6 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def fill_nan_list_str(cls, orig_data, col_name, from_list, weights=None,
-                          seed=0):
-        """
-        NaN をlistの範囲からランダムに埋める
-
-        Parameters
-        ----------
-        orig_data : pandas.DataFrame
-            元データ
-        col_name : str
-            対称のカラム名
-        from_list : list
-            ランダムに抽出したい値のlist
-        weights : list
-            抽出時に重みづけしたい場合に指定。from_listと同じsizeで。
-        seed : int
-            シード。指定したければどうぞ。
-
-        Returns
-        -------
-        fill_data : pandas.DataFrame
-            NaN を埋めたデータ
-        """
-        cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
-        np.random.seed(seed)
-        # 要素数を取得
-        data_len = len(from_list)
-        # 重みが与えられていない場合はすべて等しくする
-        if weights is None:
-            cls.__create_weights(data_len)
-        assert len(weights) != data_len, \
-            '[{0}] lenght is not much your input, input_len:[{1}]'.format(col_name, weights)
-
-        # ランダムな値の抽出
-        rand_data = np.random.choice(from_list, len(orig_data[col_name]),
-                                     p=weights)
-        # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
-        cls.__fill_nan_rand(fill_data, col_name, rand_data)
-
-        return fill_data
-
-    @classmethod
     def fill_nan_range_date(cls, orig_data, col_name, seed=0, date_fmt=None, change_fmt=False):
         """
         NaN をすでにある値の範囲からランダムに埋める
