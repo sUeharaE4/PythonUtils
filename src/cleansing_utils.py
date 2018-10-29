@@ -178,8 +178,8 @@ class CleansingUtils:
         # 重みが与えられていない場合はすべて等しくする
         if weights is None:
             cls.__create_weights(data_len)
-        assert len(weights) != data_len, \
-            '[{0}] lenght is not much your input, input_len:[{1}]'.format(col_name, weights)
+        assert len(weights) == data_len, \
+            '[{0}] lenght({1}) is not much your input, input_len:[{2}]'.format(col_name, data_len, len(weights))
         # ランダムな値の抽出
         rand_data = np.random.choice(from_list, len(orig_data[col_name]), p=weights)
 
@@ -202,6 +202,8 @@ class CleansingUtils:
             シード。指定したければどうぞ。
         date_fmt : str
             日時データのフォーマット
+        change_fmt : bool
+            元の書式に戻したreturnが必要な場合True
 
         Returns
         -------
@@ -309,4 +311,4 @@ class CleansingUtils:
         col_name : str
             カラム名
         """
-        assert orig_data[col_name].notnull().sum() == 0, 'all of [{0}] is null ...'.format(col_name)
+        assert orig_data[col_name].notnull().sum() != 0, 'all of [{0}] is null ...'.format(col_name)
