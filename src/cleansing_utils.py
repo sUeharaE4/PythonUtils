@@ -134,17 +134,8 @@ class CleansingUtils:
         # 最大最小とその幅を取得
         data_max = orig_data[col_name].max()
         data_min = orig_data[col_name].min()
-        data_range = data_max - data_min
-        data_len = len(orig_data[col_name])
-
-        # 乱数生成
-        rand_data = data_min + np.random.rand(data_len) * data_range
-
-        # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
-        cls.__fill_nan_rand(fill_data, col_name, rand_data)
-
-        if cast_type is not None:
-            cls.__cast_int(fill_data, col_name, cast_type)
+        # 指定した値の範囲でNaNを埋める関数の呼び出し
+        fill_data = cls.__fill_range(fill_data, col_name, data_max, data_min, seed, cast_type)
         return fill_data
 
     @classmethod
@@ -339,3 +330,73 @@ class CleansingUtils:
         weights = dup_cnt_std.values.tolist()
         name_list = dup_cnt_std.index.tolist()
         return weights, name_list
+
+    @classmethod
+    def fill_nan_user_range(cls, orig_data, col_name, data_max, data_min, seed=0, cast_type=None):
+        """
+        NaN を指定された値の範囲からランダムに埋める
+
+        Parameters
+        ----------
+        orig_data : pandas.DataFrame
+            元データ
+        col_name : str
+            対称のカラム名
+        data_max : int or float
+            乱数の最大値
+        data_min : int or float
+            乱数の最小値
+        seed : int
+            シード。指定したければどうぞ。
+        cast_type : str
+            NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+
+        Returns
+        -------
+        fill_data : pandas.DataFrame
+            NaN を埋めたデータ
+        """
+        cls.__assert_all_nan(orig_data, col_name)
+        fill_data = orig_data
+        # 指定した値の範囲でNaNを埋める関数の呼び出し
+        fill_data = cls.__fill_range(fill_data, col_name, data_max, data_min, seed, cast_type)
+        return fill_data
+
+    @classmethod
+    def __fill_range(cls, fill_data, col_name, data_max, data_min, seed=0, cast_type=None):
+        """
+        NaNを与えられた最大最小範囲内の乱数で埋める
+
+        Parameters
+        ----------
+        fill_data : pandas.DataFrame
+            元データを格納した、これから変換予定のオブジェクト
+        col_name : str
+            対称のカラム名
+        data_max : int or float
+            乱数の最大値
+        data_min : int or float
+            乱数の最小値
+        seed : int
+            シード。指定したければどうぞ。
+        cast_type : str
+            NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+
+        Returns
+        -------
+        fill_data : pandas.DataFrame
+            NaN を埋めたデータ
+        """
+        np.random.seed(seed)
+        data_range = data_max - data_min
+        data_len = len(fill_data[col_name])
+
+        # 乱数生成
+        rand_data = data_min + np.random.rand(data_len) * data_range
+
+        # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
+        cls.__fill_nan_rand(fill_data, col_name, rand_data)
+
+        if cast_type is not None:
+            cls.__cast_int(fill_data, col_name, cast_type)
+        return fill_data
