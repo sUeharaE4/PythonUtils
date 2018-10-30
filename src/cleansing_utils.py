@@ -24,7 +24,7 @@ class CleansingUtils:
         # logger.propagate = False
 
     @classmethod
-    def fill_nan_mean(cls, orig_data, col_name, is_int=False):
+    def fill_nan_mean(cls, orig_data, col_name, cast_type=None):
         """
         NaN をすでにある値の平均値で埋める
 
@@ -34,8 +34,8 @@ class CleansingUtils:
             元データ
         col_name : str
             対称のカラム名
-        is_int : bool
-            本来はintの予定だけどfloatになっていて、返却値をintにしたい場合True。
+        cast_type : str
+            NaNがFloatなのでint等に変換したい場合は文字列で指定する。
 
         Returns
         -------
@@ -47,12 +47,12 @@ class CleansingUtils:
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].mean())
         fill_data[col_name] = tmp_data
 
-        if is_int:
-            cls.__cast_int(fill_data, col_name)
+        if cast_type is not None:
+            cls.__cast_int(fill_data, col_name, cast_type)
         return fill_data
 
     @classmethod
-    def fill_nan_median(cls, orig_data, col_name, is_int=False):
+    def fill_nan_median(cls, orig_data, col_name, cast_type=None):
         """
         NaN をすでにある値の中央値で埋める
 
@@ -62,8 +62,8 @@ class CleansingUtils:
             元データ
         col_name : str
             対称のカラム名
-        is_int : bool
-            本来はintの予定だけどfloatになっていて、返却値をintにしたい場合True。
+        cast_type : str
+            NaNがFloatなのでint等に変換したい場合は文字列で指定する。
 
         Returns
         -------
@@ -75,12 +75,12 @@ class CleansingUtils:
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
         fill_data[col_name] = tmp_data
 
-        if is_int:
-            cls.__cast_int(fill_data, col_name)
+        if cast_type is not None:
+            cls.__cast_int(fill_data, col_name, cast_type)
         return fill_data
 
     @classmethod
-    def fill_nan_mode(cls, orig_data, col_name, is_int=False):
+    def fill_nan_mode(cls, orig_data, col_name, cast_type=None):
         """
         NaN をすでにある値の最頻値で埋める
 
@@ -90,8 +90,8 @@ class CleansingUtils:
             元データ
         col_name : str
             対称のカラム名
-        is_int : bool
-            本来はintの予定だけどfloatになっていて、返却値をintにしたい場合True。
+        cast_type : str
+            NaNがFloatなのでint等に変換したい場合は文字列で指定する。
 
         Returns
         -------
@@ -103,12 +103,12 @@ class CleansingUtils:
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
         fill_data[col_name] = tmp_data
 
-        if is_int:
-            cls.__cast_int(fill_data, col_name)
+        if cast_type is not None:
+            cls.__cast_int(fill_data, col_name, cast_type)
         return fill_data
 
     @classmethod
-    def fill_nan_range(cls, orig_data, col_name, seed=0, is_int=False):
+    def fill_nan_range(cls, orig_data, col_name, seed=0, cast_type=None):
         """
         NaN をすでにある値の範囲からランダムに埋める
 
@@ -120,8 +120,8 @@ class CleansingUtils:
             対称のカラム名
         seed : int
             シード。指定したければどうぞ。
-        is_int : bool
-            本来はintの予定だけどfloatになっていて、返却値をintにしたい場合True。
+        cast_type : str
+            NaNがFloatなのでint等に変換したい場合は文字列で指定する。
 
         Returns
         -------
@@ -143,8 +143,8 @@ class CleansingUtils:
         # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
         cls.__fill_nan_rand(fill_data, col_name, rand_data)
 
-        if is_int:
-            cls.__cast_int(fill_data, col_name)
+        if cast_type is not None:
+            cls.__cast_int(fill_data, col_name, cast_type)
         return fill_data
 
     @classmethod
@@ -261,7 +261,7 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def __cast_int(cls, fill_data, col_name):
+    def __cast_int(cls, fill_data, col_name, cast_type):
         """
         pandas.DataFrame にする際にFloatになってしまったカラムをintに変換する
 
@@ -271,13 +271,15 @@ class CleansingUtils:
             NaNを埋めたいデータフレーム
         col_name : str
             カラム名
+        cast_type : str
+            キャストする型の文字列
 
         Returns
         -------
         fill_data : pandas.DataFrame
             キャスト後のデータ
         """
-        fill_data[col_name] = fill_data[col_name].astype(int)
+        fill_data[col_name] = fill_data[col_name].astype(cast_type)
         return fill_data
 
     @classmethod
