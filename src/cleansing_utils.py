@@ -314,3 +314,28 @@ class CleansingUtils:
             カラム名
         """
         assert orig_data[col_name].notnull().sum() != 0, 'all of [{0}] is null ...'.format(col_name)
+
+    @classmethod
+    def create_current_weights_names(cls, orig_data, col_name):
+        """
+        Parameters
+        ----------
+        orig_data : pandas.DataFrame
+            すでにあるデータから重みを計算する
+        col_name : str
+            カラム名
+
+        Returns
+        -------
+        weights : list
+            重みlist
+        """
+        # すべてNaNだった場合はAssert
+        cls.__assert_all_nan(orig_data, col_name)
+        # 値の個数カウントと正規化
+        dup_cnt = orig_data[col_name].value_counts().dropna()
+        dup_cnt_std = dup_cnt / dup_cnt.sum()
+        # 重みと名称リストの作成
+        weights = dup_cnt_std.values.tolist()
+        name_list = dup_cnt_std.index.tolist()
+        return weights, name_list
