@@ -108,7 +108,8 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def fill_nan_range(cls, orig_data, col_name, seed=0, cast_type=None):
+    def fill_nan_range(cls, orig_data, col_name,
+                       seed=0, cast_type=None):
         """
         NaN をすでにある値の範囲からランダムに埋める
 
@@ -135,11 +136,13 @@ class CleansingUtils:
         data_max = orig_data[col_name].max()
         data_min = orig_data[col_name].min()
         # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range(fill_data, col_name, data_max, data_min, seed, cast_type)
+        fill_data = cls.__fill_range(fill_data, col_name,
+                                     data_max, data_min, seed, cast_type)
         return fill_data
 
     @classmethod
-    def fill_nan_user_range(cls, orig_data, col_name, data_max, data_min, seed=0, cast_type=None):
+    def fill_nan_user_range(cls, orig_data, col_name,
+                            data_max, data_min, seed=0, cast_type=None):
         """
         NaN を指定された値の範囲からランダムに埋める
 
@@ -166,11 +169,13 @@ class CleansingUtils:
         cls.__assert_all_nan(orig_data, col_name)
         fill_data = orig_data
         # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range(fill_data, col_name, data_max, data_min, seed, cast_type)
+        fill_data = cls.__fill_range(fill_data, col_name,
+                                     data_max, data_min, seed, cast_type)
         return fill_data
 
     @classmethod
-    def fill_nan_range_date(cls, orig_data, col_name, seed=0, date_fmt=None, change_fmt=False):
+    def fill_nan_range_date(cls, orig_data, col_name,
+                            seed=0, date_fmt=None, change_fmt=False):
         """
         NaN をすでにある値の範囲からランダムに埋める
 
@@ -196,18 +201,21 @@ class CleansingUtils:
         fill_data = orig_data
 
         if date_fmt is not None:
-            fill_data[col_name] = pd.to_datetime(fill_data[col_name], format=date_fmt)
+            fill_data[col_name] = pd.to_datetime(fill_data[col_name],
+                                                 format=date_fmt)
 
         # 最大最小とその幅を取得
         data_max = orig_data[col_name].max()
         data_min = orig_data[col_name].min()
         # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range_date(fill_data, col_name, data_max, data_min,
-                                          seed=seed, date_fmt=date_fmt, change_fmt=change_fmt)
+        fill_data = cls.__fill_range_date(fill_data, col_name, data_max,
+                                          data_min, seed=seed, date_fmt=date_fmt,
+                                          change_fmt=change_fmt)
         return fill_data
 
     @classmethod
-    def fill_nan_user_range_date(cls, orig_data, col_name, data_max, data_min, seed=0, date_fmt=None, change_fmt=False):
+    def fill_nan_user_range_date(cls, orig_data, col_name, data_max,
+                                 data_min, seed=0, date_fmt=None, change_fmt=False):
         """
         NaN を指定された日時の値の範囲からランダムに埋める
 
@@ -237,11 +245,13 @@ class CleansingUtils:
         fill_data = orig_data
 
         if date_fmt is not None:
-            fill_data[col_name] = pd.to_datetime(fill_data[col_name], format=date_fmt)
+            fill_data[col_name] = pd.to_datetime(fill_data[col_name],
+                                                 format=date_fmt)
 
         # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range_date(fill_data, col_name, data_max, data_min,
-                                          seed=seed, date_fmt=date_fmt, change_fmt=change_fmt)
+        fill_data = cls.__fill_range_date(fill_data, col_name, data_max,
+                                          data_min, seed=seed, date_fmt=date_fmt,
+                                          change_fmt=change_fmt)
         return fill_data
 
     @classmethod
@@ -276,9 +286,11 @@ class CleansingUtils:
         if weights is None:
             cls.__create_default_weights(data_len)
         assert len(weights) == data_len, \
-            '[{0}] lenght({1}) is not much your input, input_len:[{2}]'.format(col_name, data_len, len(weights))
+            '[{0}] lenght({1}) is not much your input, ' \
+            'input_len:[{2}]'.format(col_name, data_len, len(weights))
         # ランダムな値の抽出
-        rand_data = np.random.choice(from_list, len(orig_data[col_name]), p=weights)
+        rand_data = np.random.choice(from_list,
+                                     len(orig_data[col_name]), p=weights)
 
         # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
         cls.__fill_nan_rand(fill_data, col_name, rand_data)
@@ -361,7 +373,8 @@ class CleansingUtils:
         col_name : str
             カラム名
         """
-        assert orig_data[col_name].notnull().sum() != 0, 'all of [{0}] is null ...'.format(col_name)
+        assert orig_data[col_name].notnull().sum() != 0, \
+            'all of [{0}] is null ...'.format(col_name)
 
     @classmethod
     def create_current_weights_names(cls, orig_data, col_name):
@@ -389,7 +402,8 @@ class CleansingUtils:
         return weights, name_list
 
     @classmethod
-    def __fill_range(cls, fill_data, col_name, data_max, data_min, seed=0, cast_type=None):
+    def __fill_range(cls, fill_data, col_name, data_max, data_min,
+                     seed=0, cast_type=None):
         """
         NaNを与えられた最大最小範囲内の乱数で埋める
 
@@ -428,7 +442,8 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def __fill_range_date(cls, fill_data, col_name, data_max, data_min, seed=0, date_fmt=None, change_fmt=False):
+    def __fill_range_date(cls, fill_data, col_name, data_max, data_min,
+                          seed=0, date_fmt=None, change_fmt=False):
         """
         NaNを与えられた最大最小範囲内の乱数で埋める
 
@@ -490,7 +505,7 @@ class CleansingUtils:
         Returns
         -------
         update_data : pandas.DataFrame
-            NaN を埋めたデータ
+            更新したデータ
         """
         def create_tmp_dataframe(df, pk):
             tmp_col = df.columns
