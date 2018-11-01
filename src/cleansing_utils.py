@@ -498,7 +498,7 @@ class CleansingUtils:
             tmp_dataframe.index = tmp_dataframe[pk].values
             return tmp_dataframe
 
-        assert len(target_data) < len(source_data), 'target is smaller than source.'
+        assert len(target_data) > len(source_data), 'target is smaller than source.'
         tmp_target = create_tmp_dataframe(target_data, pk_target)
         tmp_source = create_tmp_dataframe(source_data, pk_source)
         tmp_target.update(tmp_source)
