@@ -197,25 +197,51 @@ class CleansingUtils:
 
         if date_fmt is not None:
             fill_data[col_name] = pd.to_datetime(fill_data[col_name], format=date_fmt)
-        np.random.seed(seed)
+
         # 最大最小とその幅を取得
         data_max = orig_data[col_name].max()
         data_min = orig_data[col_name].min()
-        start_date = data_min.value // 10 ** 9
-        end_date = data_max.value // 10 ** 9
-        data_len = len(orig_data[col_name])
+        # 指定した値の範囲でNaNを埋める関数の呼び出し
+        fill_data = cls.__fill_range_date(fill_data, col_name, data_max, data_min,
+                                          seed=seed, date_fmt=date_fmt, change_fmt=change_fmt)
+        return fill_data
 
-        # 乱数生成
-        rand_data = pd.to_datetime(
-            np.random.randint(start_date, end_date, data_len), unit='s'
-        )
+    @classmethod
+    def fill_nan_user_range_date(cls, orig_data, col_name, data_max, data_min, seed=0, date_fmt=None, change_fmt=False):
+        """
+        NaN を指定された日時の値の範囲からランダムに埋める
 
-        # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
-        cls.__fill_nan_rand(fill_data, col_name, rand_data)
-        # change_fmtが指定されていた場合は元の書式に変換する
-        if change_fmt:
-            fill_data[col_name] = fill_data[col_name].dt.strftime(date_fmt)
+        Parameters
+        ----------
+        orig_data : pandas.DataFrame
+            元データ
+        col_name : str
+            対称のカラム名
+        data_max : Timestamp
+            日時データの最大値
+        data_min : Timestamp
+            日時データの最小値
+        seed : int
+            シード。指定したければどうぞ。
+        date_fmt : str
+            日時データのフォーマット
+        change_fmt : bool
+            元の書式に戻したreturnが必要な場合True
 
+        Returns
+        -------
+        fill_data : pandas.DataFrame
+            NaN を埋めたデータ
+        """
+        cls.__assert_all_nan(orig_data, col_name)
+        fill_data = orig_data
+
+        if date_fmt is not None:
+            fill_data[col_name] = pd.to_datetime(fill_data[col_name], format=date_fmt)
+
+        # 指定した値の範囲でNaNを埋める関数の呼び出し
+        fill_data = cls.__fill_range_date(fill_data, col_name, data_max, data_min,
+                                          seed=seed, date_fmt=date_fmt, change_fmt=change_fmt)
         return fill_data
 
     @classmethod
@@ -400,3 +426,81 @@ class CleansingUtils:
         if cast_type is not None:
             cls.__cast_int(fill_data, col_name, cast_type)
         return fill_data
+
+    @classmethod
+    def __fill_range_date(cls, fill_data, col_name, data_max, data_min, seed=0, date_fmt=None, change_fmt=False):
+        """
+        NaNを与えられた最大最小範囲内の乱数で埋める
+
+        Parameters
+        ----------
+        fill_data : pandas.DataFrame
+            元データを格納した、これから変換予定のオブジェクト
+        col_name : str
+            対称のカラム名
+        data_max : Timestamp
+            乱数の最大値
+        data_min : Timestamp
+            乱数の最小値
+        seed : int
+            シード。指定したければどうぞ。
+        date_fmt : str
+            日時データのフォーマット
+        change_fmt : bool
+            date_fmtに変換する場合はTrue
+        Returns
+        -------
+        fill_data : pandas.DataFrame
+            NaN を埋めたデータ
+        """
+        np.random.seed(seed)
+
+        start_date = data_min.value // 10 ** 9
+        end_date = data_max.value // 10 ** 9
+        data_len = len(fill_data[col_name])
+
+        # 乱数生成
+        rand_data = pd.to_datetime(
+            np.random.randint(start_date, end_date, data_len), unit='s'
+        )
+
+        # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
+        cls.__fill_nan_rand(fill_data, col_name, rand_data)
+        # change_fmtが指定されていた場合は元の書式に変換する
+        if change_fmt:
+            fill_data[col_name] = fill_data[col_name].dt.strftime(date_fmt)
+        return fill_data
+
+    @classmethod
+    def update_dataframe(cls, target_data, source_data, pk_target, pk_source):
+        """
+        データフレームのキーが一致するレコードを更新する。更新される側が大きいこと。
+
+        Parameters
+        ----------
+        target_data : pandas.DataFrame
+            変更されるデータフレーム. こちらのほうが大きいこと
+        source_data : pandas.DataFrame
+            変更するデータを持ったデータフレーム. こちらのほうが小さい
+        pk_target : str
+            target_data の key
+        pk_source : str
+            source_data の key
+
+        Returns
+        -------
+        update_data : pandas.DataFrame
+            NaN を埋めたデータ
+        """
+        def create_tmp_dataframe(df, pk):
+            tmp_col = df.columns
+            tmp_dataframe = pd.DataFrame(df.values, columns=tmp_col)
+            tmp_dataframe.index = tmp_dataframe[pk].values
+            return tmp_dataframe
+
+        assert len(target_data) < len(source_data), 'target is smaller than source.'
+        tmp_target = create_tmp_dataframe(target_data, pk_target)
+        tmp_source = create_tmp_dataframe(source_data, pk_source)
+        tmp_target.update(tmp_source)
+        update_data = tmp_target
+        return update_data
