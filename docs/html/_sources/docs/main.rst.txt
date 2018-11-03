@@ -1,0 +1,22 @@
+main package
+============
+
+Submodules
+----------
+
+main.cleansing\_utils module
+----------------------------
+
+.. automodule:: main.cleansing_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: main
+    :members:
+    :undoc-members:
+    :show-inheritance:
