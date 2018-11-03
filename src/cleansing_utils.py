@@ -190,7 +190,7 @@ class CleansingUtils:
 
     @classmethod
     def fill_nan_range_date(cls, orig_data, col_name,
-                            seed=0, date_fmt=None, change_fmt=False):
+                            seed=0, date_fmt=None):
         """
         NaN をすでにある値の範囲からランダムに埋める
 
@@ -203,9 +203,7 @@ class CleansingUtils:
         seed : int
             シード。指定したければどうぞ。
         date_fmt : str
-            日時データのフォーマット
-        change_fmt : bool
-            元の書式に戻したreturnが必要な場合True
+            日時データのフォーマット 既にTimestampならNone
 
         Returns
         -------
@@ -225,13 +223,13 @@ class CleansingUtils:
         # 指定した値の範囲でNaNを埋める関数の呼び出し
         fill_data = cls.__fill_range_date(fill_data, col_name,
                                           data_max, data_min, seed=seed,
-                                          date_fmt=date_fmt, change_fmt=change_fmt)
+                                          date_fmt=date_fmt)
         logger.debug('end. col_name : ' + col_name)
         return fill_data
 
     @classmethod
     def fill_nan_user_range_date(cls, orig_data, col_name, data_max,
-                                 data_min, seed=0, date_fmt=None, change_fmt=False):
+                                 data_min, seed=0, date_fmt=None):
         """
         NaN を指定された日時の値の範囲からランダムに埋める
 
@@ -248,9 +246,7 @@ class CleansingUtils:
         seed : int
             シード。指定したければどうぞ。
         date_fmt : str
-            日時データのフォーマット
-        change_fmt : bool
-            元の書式に戻したreturnが必要な場合True
+            日時データのフォーマット 既にTimestampならNone
 
         Returns
         -------
@@ -267,7 +263,7 @@ class CleansingUtils:
         # 指定した値の範囲でNaNを埋める関数の呼び出し
         fill_data = cls.__fill_range_date(fill_data, col_name, data_max,
                                           data_min, seed=seed, date_fmt=date_fmt,
-                                          change_fmt=change_fmt)
+                                          )
         logger.debug('end. col_name : ' + col_name)
         return fill_data
 
@@ -301,7 +297,7 @@ class CleansingUtils:
         data_len = len(from_list)
         # 重みが与えられていない場合はすべて等しくする
         if weights is None:
-            cls.__create_default_weights(data_len)
+            weights = cls.__create_default_weights(data_len)
         assert len(weights) == data_len, \
             '[{0}] lenght({1}) is not much your input, ' \
             'input_len:[{2}]'.format(col_name, data_len, len(weights))
@@ -466,7 +462,7 @@ class CleansingUtils:
 
     @classmethod
     def __fill_range_date(cls, fill_data, col_name, data_max, data_min,
-                          seed=0, date_fmt=None, change_fmt=False):
+                          seed=0, date_fmt=None):
         """
         NaNを与えられた最大最小範囲内の乱数で埋める
 
@@ -484,8 +480,7 @@ class CleansingUtils:
             シード。指定したければどうぞ。
         date_fmt : str
             日時データのフォーマット
-        change_fmt : bool
-            date_fmtに変換する場合はTrue
+
         Returns
         -------
         fill_data : pandas.DataFrame
@@ -502,11 +497,15 @@ class CleansingUtils:
             np.random.randint(start_date, end_date, data_len), unit='s'
         )
 
+        # フォーマット変換
+        if date_fmt is not None:
+            rand_data = rand_data.strftime(date_fmt).values
+            fill_data[col_name] = \
+                fill_data[col_name].dt.strftime(date_fmt).values
+
         # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
         cls.__fill_nan_rand(fill_data, col_name, rand_data)
-        # change_fmtが指定されていた場合は元の書式に変換する
-        if change_fmt:
-            fill_data[col_name] = fill_data[col_name].dt.strftime(date_fmt)
+
         return fill_data
 
     @classmethod
@@ -531,15 +530,35 @@ class CleansingUtils:
             更新したデータ
         """
         def create_tmp_dataframe(df, pk):
+            """
+            与えられたキーをindexに持つデータフレームを生成する
+
+            Parameters
+            ----------
+            df : pandas.DataFrame
+                index を付与したいDataFrame
+            pk : str
+                index にするキー
+            Returns
+            -------
+            """
             tmp_col = df.columns
             tmp_dataframe = pd.DataFrame(df.values, columns=tmp_col)
             tmp_dataframe.index = tmp_dataframe[pk].values
             return tmp_dataframe
 
-        assert len(target_data) > len(source_data), 'target is smaller than source.'
+        # 大小比較
+        assert len(target_data) >= len(source_data), 'target is smaller than source.'
+        # 元のindex と columns を退避
+        index_values = target_data.index.values
+        column_values = target_data.columns
+        # pk を index とした DataFrame を作成
         tmp_target = create_tmp_dataframe(target_data, pk_target)
         tmp_source = create_tmp_dataframe(source_data, pk_source)
+
         tmp_target.update(tmp_source)
-        update_data = tmp_target
+        # index, columns を再設定
+        update_data = pd.DataFrame(tmp_target.values,
+                                   index=index_values, columns=column_values)
         logger.debug('end. ')
         return update_data
