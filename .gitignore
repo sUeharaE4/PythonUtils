@@ -4,3 +4,9 @@
 .idea/inspectionProfiles/Project_Default.xml
 .idea/PythonUtils.iml
 .idea/vcs.xml
+.notes/*
+.test/*
+!.test/__init__.py
+!.test/test_cleansing_utils.py
+.data/*
+!.data/test.csv
