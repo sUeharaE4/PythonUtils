@@ -1,3 +1,1 @@
-import sys
-sys.path.append('../main/')
-import cleansing_utils
+import main.cleansing_utils
