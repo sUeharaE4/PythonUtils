@@ -27,7 +27,8 @@ class CleansingUtils:
         logger.propagate = False
 
     @classmethod
-    def fill_nan_mean(cls, orig_data, col_name, cast_type=None):
+    def fill_nan_mean(cls, orig_data, col_name, cast_type=None,
+                      deep_copy=False):
         """
         NaN をすでにある値の平均値で埋める
 
@@ -39,6 +40,8 @@ class CleansingUtils:
             対称のカラム名
         cast_type : str
             NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -46,7 +49,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].mean())
         fill_data[col_name] = tmp_data
 
@@ -57,7 +63,8 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def fill_nan_median(cls, orig_data, col_name, cast_type=None):
+    def fill_nan_median(cls, orig_data, col_name, cast_type=None,
+                        deep_copy=False):
         """
         NaN をすでにある値の中央値で埋める
 
@@ -69,6 +76,8 @@ class CleansingUtils:
             対称のカラム名
         cast_type : str
             NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -76,7 +85,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
         fill_data[col_name] = tmp_data
 
@@ -87,7 +99,8 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def fill_nan_mode(cls, orig_data, col_name, cast_type=None):
+    def fill_nan_mode(cls, orig_data, col_name, cast_type=None,
+                      deep_copy=False):
         """
         NaN をすでにある値の最頻値で埋める
 
@@ -99,6 +112,8 @@ class CleansingUtils:
             対称のカラム名
         cast_type : str
             NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -106,7 +121,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
         fill_data[col_name] = tmp_data
 
@@ -118,7 +136,7 @@ class CleansingUtils:
 
     @classmethod
     def fill_nan_range(cls, orig_data, col_name,
-                       seed=0, cast_type=None):
+                       seed=0, cast_type=None, deep_copy=False):
         """
         NaN をすでにある値の範囲からランダムに埋める
 
@@ -132,6 +150,8 @@ class CleansingUtils:
             シード。指定したければどうぞ。
         cast_type : str
             NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -139,7 +159,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
         np.random.seed(seed)
         # 最大最小とその幅を取得
         data_max = orig_data[col_name].max()
@@ -154,7 +177,7 @@ class CleansingUtils:
     @classmethod
     def fill_nan_user_range(cls, orig_data, col_name,
                             data_max, data_min, seed=0,
-                            cast_type=None):
+                            cast_type=None, deep_copy=False):
         """
         NaN を指定された値の範囲からランダムに埋める
 
@@ -172,6 +195,8 @@ class CleansingUtils:
             シード。指定したければどうぞ。
         cast_type : str
             NaNがFloatなのでint等に変換したい場合は文字列で指定する。
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -179,7 +204,11 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        cls.__assert_data_range(data_max, data_min)
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
         # 指定した値の範囲でNaNを埋める関数の呼び出し
         fill_data = cls.__fill_range(fill_data, col_name,
                                      data_max, data_min,
@@ -190,7 +219,7 @@ class CleansingUtils:
 
     @classmethod
     def fill_nan_range_date(cls, orig_data, col_name,
-                            seed=0, date_fmt=None):
+                            seed=0, date_fmt=None, deep_copy=False):
         """
         NaN をすでにある値の範囲からランダムに埋める
 
@@ -204,6 +233,8 @@ class CleansingUtils:
             シード。指定したければどうぞ。
         date_fmt : str
             日時データのフォーマット 既にTimestampならNone
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -211,7 +242,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
 
         if date_fmt is not None:
             fill_data[col_name] = pd.to_datetime(fill_data[col_name],
@@ -229,7 +263,8 @@ class CleansingUtils:
 
     @classmethod
     def fill_nan_user_range_date(cls, orig_data, col_name, data_max,
-                                 data_min, seed=0, date_fmt=None):
+                                 data_min, seed=0, date_fmt=None,
+                                 deep_copy=False):
         """
         NaN を指定された日時の値の範囲からランダムに埋める
 
@@ -247,6 +282,8 @@ class CleansingUtils:
             シード。指定したければどうぞ。
         date_fmt : str
             日時データのフォーマット 既にTimestampならNone
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -254,7 +291,11 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        cls.__assert_data_range(data_max, data_min)
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
 
         if date_fmt is not None:
             fill_data[col_name] = pd.to_datetime(fill_data[col_name],
@@ -268,7 +309,8 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def fill_nan_list(cls, orig_data, col_name, from_list, weights=None, seed=0):
+    def fill_nan_list(cls, orig_data, col_name, from_list,
+                      weights=None, seed=0, deep_copy=False):
         """
         NaN をlistの範囲からランダムに埋める
 
@@ -284,6 +326,8 @@ class CleansingUtils:
             抽出時に重みづけしたい場合に指定。from_listと同じsizeで。
         seed : int
             シード。指定したければどうぞ。
+        deep_copy : bool
+            元のデータを変更したくない場合はTrue。その分メモリ使う。
 
         Returns
         -------
@@ -291,7 +335,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        fill_data = orig_data
+        if deep_copy:
+            fill_data = orig_data.copy()
+        else:
+            fill_data = orig_data
         np.random.seed(seed)
         # 要素数を取得
         data_len = len(from_list)

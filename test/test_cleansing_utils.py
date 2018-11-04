@@ -23,7 +23,7 @@ def test_fill_nan_mean_int():
 def test_fill_nan_mean_float():
     test_data = orig_data.copy()
     col = 'float'
-    test_data = cu.fill_nan_mean(test_data, col, 'float')
+    test_data = cu.fill_nan_mean(test_data, col, 'float', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
@@ -37,7 +37,7 @@ def test_fill_nan_median_int():
 def test_fill_nan_median_float():
     test_data = orig_data.copy()
     col = 'float'
-    test_data = cu.fill_nan_median(test_data, col, 'float')
+    test_data = cu.fill_nan_median(test_data, col, 'float', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
@@ -51,7 +51,7 @@ def test_fill_nan_mode_int():
 def test_fill_nan_mode_float():
     test_data = orig_data.copy()
     col = 'float'
-    test_data = cu.fill_nan_mode(test_data, col, 'float')
+    test_data = cu.fill_nan_mode(test_data, col, 'float', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
@@ -65,7 +65,7 @@ def test_fill_nan_range_int():
 def test_fill_nan_range_float():
     test_data = orig_data.copy()
     col = 'float'
-    test_data = cu.fill_nan_range(test_data, col, cast_type='float')
+    test_data = cu.fill_nan_range(test_data, col, cast_type='float', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
@@ -83,21 +83,23 @@ def test_fill_nan_user_range_float():
     col = 'float'
     test_data = cu.fill_nan_user_range(test_data, col,
                                        data_max=100.52, data_min=-150.2,
-                                       cast_type='float')
+                                       cast_type='float', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_range_date_yyyymmdd():
     test_data = orig_data.copy()
     col = 'Date'
-    test_data = cu.fill_nan_range_date(test_data, col, date_fmt='%Y/%m/%d')
+    test_data = cu.fill_nan_range_date(test_data, col,
+                                       date_fmt='%Y/%m/%d', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_range_date_timestamp():
     test_data = orig_data.copy()
     col = 'Datetime'
-    test_data = cu.fill_nan_range_date(test_data, col, date_fmt='%Y%m%d %H:%M:%S')
+    test_data = cu.fill_nan_range_date(test_data, col,
+                                       date_fmt='%Y%m%d %H:%M:%S')
     assert test_data[col].isnull().sum() == 0
 
 
@@ -109,6 +111,17 @@ def test_fill_nan_user_range_date():
     test_data = cu.fill_nan_user_range_date(test_data, col,
                                             data_max=data_max, data_min=data_min,
                                             date_fmt='%Y%m%d %H:%M:%S')
+    assert test_data[col].isnull().sum() == 0
+
+
+def test_fill_nan_user_range_date_deep():
+    test_data = orig_data.copy()
+    col = 'Datetime'
+    data_max = pd.to_datetime('2020-12-31 23:59:59')
+    data_min = pd.to_datetime('2010-01-01 00:00:00')
+    test_data = cu.fill_nan_user_range_date(test_data, col,
+                                            data_max=data_max, data_min=data_min,
+                                            date_fmt='%Y%m%d %H:%M:%S', deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
@@ -125,7 +138,7 @@ def test_fill_nan_list_weights():
     col = 'ID'
     test_list = ['0001', '0002', '0003']
     weights = [1, 0, 0]
-    test_data = cu.fill_nan_list(test_data, col, test_list, weights)
+    test_data = cu.fill_nan_list(test_data, col, test_list, weights, deep_copy=True)
     assert test_data[col].isnull().sum() == 0
 
 
