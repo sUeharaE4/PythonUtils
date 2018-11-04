@@ -60,7 +60,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_mean"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_mean">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">fill_nan_mean</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fill_nan_mean</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN をすでにある値の平均値で埋める</span>
 
@@ -72,6 +73,8 @@
 <span class="sd">            対称のカラム名</span>
 <span class="sd">        cast_type : str</span>
 <span class="sd">            NaNがFloatなのでint等に変換したい場合は文字列で指定する。</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -79,7 +82,10 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
         <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_data</span>
 
@@ -90,7 +96,8 @@
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_median"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_median">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">fill_nan_median</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fill_nan_median</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN をすでにある値の中央値で埋める</span>
 
@@ -102,6 +109,8 @@
 <span class="sd">            対称のカラム名</span>
 <span class="sd">        cast_type : str</span>
 <span class="sd">            NaNがFloatなのでint等に変換したい場合は文字列で指定する。</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -109,7 +118,10 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
         <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">())</span>
         <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_data</span>
 
@@ -120,7 +132,8 @@
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_mode"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_mode">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">fill_nan_mode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fill_nan_mode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN をすでにある値の最頻値で埋める</span>
 
@@ -132,6 +145,8 @@
 <span class="sd">            対称のカラム名</span>
 <span class="sd">        cast_type : str</span>
 <span class="sd">            NaNがFloatなのでint等に変換したい場合は文字列で指定する。</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -139,7 +154,10 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
         <span class="n">tmp_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">())</span>
         <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_data</span>
 
@@ -151,7 +169,7 @@
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_range"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_range">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">fill_nan_range</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                       <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                       <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN をすでにある値の範囲からランダムに埋める</span>
 
@@ -165,6 +183,8 @@
 <span class="sd">            シード。指定したければどうぞ。</span>
 <span class="sd">        cast_type : str</span>
 <span class="sd">            NaNがFloatなのでint等に変換したい場合は文字列で指定する。</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -172,7 +192,10 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         <span class="c1"># 最大最小とその幅を取得</span>
         <span class="n">data_max</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
@@ -187,7 +210,7 @@
 <div class="viewcode-block" id="CleansingUtils.fill_nan_user_range"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_user_range">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">fill_nan_user_range</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
                             <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                            <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                            <span class="n">cast_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN を指定された値の範囲からランダムに埋める</span>
 
@@ -205,6 +228,8 @@
 <span class="sd">            シード。指定したければどうぞ。</span>
 <span class="sd">        cast_type : str</span>
 <span class="sd">            NaNがFloatなのでint等に変換したい場合は文字列で指定する。</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -212,7 +237,11 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_data_range</span><span class="p">(</span><span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
         <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
                                      <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span>
@@ -223,7 +252,7 @@
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_range_date"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_range_date">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">fill_nan_range_date</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                            <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">date_fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                            <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">date_fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN をすでにある値の範囲からランダムに埋める</span>
 
@@ -237,6 +266,8 @@
 <span class="sd">            シード。指定したければどうぞ。</span>
 <span class="sd">        date_fmt : str</span>
 <span class="sd">            日時データのフォーマット 既にTimestampならNone</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -244,15 +275,18 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
 
         <span class="k">if</span> <span class="n">date_fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
                                                  <span class="nb">format</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
 
         <span class="c1"># 最大最小とその幅を取得</span>
-        <span class="n">data_max</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">data_min</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">data_max</span> <span class="o">=</span> <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">data_min</span> <span class="o">=</span> <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range_date</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
                                           <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
@@ -262,7 +296,8 @@
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_user_range_date"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_user_range_date">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">fill_nan_user_range_date</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">data_max</span><span class="p">,</span>
-                                 <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">date_fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                                 <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">date_fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN を指定された日時の値の範囲からランダムに埋める</span>
 
@@ -280,6 +315,8 @@
 <span class="sd">            シード。指定したければどうぞ。</span>
 <span class="sd">        date_fmt : str</span>
 <span class="sd">            日時データのフォーマット 既にTimestampならNone</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -287,7 +324,11 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_data_range</span><span class="p">(</span><span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
 
         <span class="k">if</span> <span class="n">date_fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
@@ -301,7 +342,8 @@
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_list"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_list">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">fill_nan_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">from_list</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fill_nan_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">from_list</span><span class="p">,</span>
+                      <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NaN をlistの範囲からランダムに埋める</span>
 
@@ -317,6 +359,8 @@
 <span class="sd">            抽出時に重みづけしたい場合に指定。from_listと同じsizeで。</span>
 <span class="sd">        seed : int</span>
 <span class="sd">            シード。指定したければどうぞ。</span>
+<span class="sd">        deep_copy : bool</span>
+<span class="sd">            元のデータを変更したくない場合はTrue。その分メモリ使う。</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -324,7 +368,10 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
+        <span class="k">if</span> <span class="n">deep_copy</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span>
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         <span class="c1"># 要素数を取得</span>
         <span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">from_list</span><span class="p">)</span>
@@ -422,6 +469,25 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> \
             <span class="s1">&#39;all of [</span><span class="si">{0}</span><span class="s1">] is null ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__assert_data_range</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        値の範囲をuserが指定する場合、最大最小が逆じゃないか判断する。</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_max : int or float or Timestamp</span>
+<span class="sd">            値の最大値</span>
+<span class="sd">        data_min : int or float or Timestamp</span>
+<span class="sd">            値の最小値</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data_max</span> <span class="o">&gt;=</span> <span class="n">data_min</span><span class="p">,</span> \
+            <span class="s1">&#39;input range is wrong. max:</span><span class="si">{0}</span><span class="s1">, min:</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_max</span><span class="p">,</span>
+                                                            <span class="n">data_min</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CleansingUtils.create_current_weights_names"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.create_current_weights_names">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">create_current_weights_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
@@ -544,7 +610,8 @@
 <div class="viewcode-block" id="CleansingUtils.update_dataframe"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.update_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">update_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target_data</span><span class="p">,</span> <span class="n">source_data</span><span class="p">,</span> <span class="n">pk_target</span><span class="p">,</span> <span class="n">pk_source</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        データフレームのキーが一致するレコードを更新する。更新される側が大きいこと。</span>
+<span class="sd">        DataFrameのキーが一致するレコードを更新したDataFrameを返却する。</span>
+<span class="sd">        更新される側が大きいこと。</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
