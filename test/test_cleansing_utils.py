@@ -134,7 +134,7 @@ def test_create_current_weights_names():
     col = 'str'
     test_weights, test_names = cu.create_current_weights_names(test_data, col)
     assert test_weights == [1/5, 1/5, 1/5, 1/5, 1/5]
-    assert set(test_names) == set(['NonNull0001', 'DateNull0002',
+    assert set(test_names) == set(['IDNull0001', 'DateNull0002',
                                    'DatetimeNull0003', 'intNull0004',
                                    'floatNull0005'])
 
@@ -148,3 +148,9 @@ def test_update_dataframe():
                                      'C': ['A', 'B', 'B', 'B', 'A']})
     test_data = cu.update_dataframe(test_data_target, test_data_source, 'B', 'B')
     assert (test_data_source == test_data).all().all()
+
+
+def test_missing_rate():
+    test_data = pd.read_csv('../data/test.csv')
+    missing_rate, total_missing = cu.missing_rate(test_data)
+    assert total_missing == 1/6

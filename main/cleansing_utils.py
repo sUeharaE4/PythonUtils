@@ -539,8 +539,11 @@ class CleansingUtils:
                 index を付与したいDataFrame
             pk : str
                 index にするキー
+
             Returns
             -------
+            tmp_dataframe : pandas.DataFrame
+                与えられたキーをindexに持つデータフレーム
             """
             tmp_col = df.columns
             tmp_dataframe = pd.DataFrame(df.values, columns=tmp_col)
@@ -562,3 +565,25 @@ class CleansingUtils:
                                    index=index_values, columns=column_values)
         logger.debug('end. ')
         return update_data
+
+    @classmethod
+    def missing_rate(cls, orig_data):
+        """
+        欠損率を測定する
+
+        Parameters
+        ----------
+        orig_data : pandas.DataFrame
+            欠損率を測定したい DataFrame
+
+        Returns
+        -------
+        missing_rate : pandas.Series
+            カラム毎の欠損率
+        total_missing : float
+            全体の欠損率
+        """
+
+        missing_rate = orig_data.isnull().sum() / len(orig_data)
+        total_missing = orig_data.isnull().sum().sum() / orig_data.size
+        return missing_rate, total_missing
