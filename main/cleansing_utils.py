@@ -438,6 +438,25 @@ class CleansingUtils:
             'all of [{0}] is null ...'.format(col_name)
 
     @classmethod
+    def __assert_data_range(cls, data_max, data_min):
+        """
+        値の範囲をuserが指定する場合、最大最小が逆じゃないか判断する。
+
+        Parameters
+        ----------
+        data_max : int or float or Timestamp
+            値の最大値
+        data_min : int or float or Timestamp
+            値の最小値
+
+        Returns
+        -------
+        """
+        assert data_max >= data_min, \
+            'input range is wrong. max:{0}, min:{1}'.format(data_max,
+                                                            data_min)
+
+    @classmethod
     def create_current_weights_names(cls, orig_data, col_name):
         """
         すでにあるデータから重みを計算する
@@ -558,7 +577,8 @@ class CleansingUtils:
     @classmethod
     def update_dataframe(cls, target_data, source_data, pk_target, pk_source):
         """
-        データフレームのキーが一致するレコードを更新する。更新される側が大きいこと。
+        DataFrameのキーが一致するレコードを更新したDataFrameを返却する。
+        更新される側が大きいこと。
 
         Parameters
         ----------
