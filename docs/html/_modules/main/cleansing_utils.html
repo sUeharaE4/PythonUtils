@@ -572,8 +572,11 @@
 <span class="sd">                index を付与したいDataFrame</span>
 <span class="sd">            pk : str</span>
 <span class="sd">                index にするキー</span>
+
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
+<span class="sd">            tmp_dataframe : pandas.DataFrame</span>
+<span class="sd">                与えられたキーをindexに持つデータフレーム</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">tmp_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
             <span class="n">tmp_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">tmp_col</span><span class="p">)</span>
@@ -594,7 +597,29 @@
         <span class="n">update_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tmp_target</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                                    <span class="n">index</span><span class="o">=</span><span class="n">index_values</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">column_values</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;end. &#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">update_data</span></div></div>
+        <span class="k">return</span> <span class="n">update_data</span></div>
+
+<div class="viewcode-block" id="CleansingUtils.missing_rate"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.missing_rate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">missing_rate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">orig_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        欠損率を測定する</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        orig_data : pandas.DataFrame</span>
+<span class="sd">            欠損率を測定したい DataFrame</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        missing_rate : pandas.Series</span>
+<span class="sd">            カラム毎の欠損率</span>
+<span class="sd">        total_missing : float</span>
+<span class="sd">            全体の欠損率</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">missing_rate</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">orig_data</span><span class="p">)</span>
+        <span class="n">total_missing</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">return</span> <span class="n">missing_rate</span><span class="p">,</span> <span class="n">total_missing</span></div></div>
 </pre></div>
 
           </div>

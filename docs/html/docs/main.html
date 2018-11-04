@@ -282,6 +282,26 @@
 <dd></dd></dl>
 
 <dl class="classmethod">
+<dt id="main.cleansing_utils.CleansingUtils.missing_rate">
+<em class="property">classmethod </em><code class="descname">missing_rate</code><span class="sig-paren">(</span><em>orig_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main/cleansing_utils.html#CleansingUtils.missing_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.cleansing_utils.CleansingUtils.missing_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>欠損率を測定する</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>orig_data</strong> (<em>pandas.DataFrame</em>) – 欠損率を測定したい DataFrame</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>missing_rate</strong> (<em>pandas.Series</em>) – カラム毎の欠損率</li>
+<li><strong>total_missing</strong> (<em>float</em>) – 全体の欠損率</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
 <dt id="main.cleansing_utils.CleansingUtils.update_dataframe">
 <em class="property">classmethod </em><code class="descname">update_dataframe</code><span class="sig-paren">(</span><em>target_data</em>, <em>source_data</em>, <em>pk_target</em>, <em>pk_source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main/cleansing_utils.html#CleansingUtils.update_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.cleansing_utils.CleansingUtils.update_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>データフレームのキーが一致するレコードを更新する。更新される側が大きいこと。</p>
