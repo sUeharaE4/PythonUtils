@@ -252,8 +252,8 @@ class CleansingUtils:
                                                  format=date_fmt)
 
         # 最大最小とその幅を取得
-        data_max = orig_data[col_name].max()
-        data_min = orig_data[col_name].min()
+        data_max = fill_data[col_name].max()
+        data_min = fill_data[col_name].min()
         # 指定した値の範囲でNaNを埋める関数の呼び出し
         fill_data = cls.__fill_range_date(fill_data, col_name,
                                           data_max, data_min, seed=seed,
