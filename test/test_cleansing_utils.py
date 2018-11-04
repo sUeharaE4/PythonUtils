@@ -15,62 +15,62 @@ def test___init__():
 
 def test_fill_nan_mean_int():
     col = 'int'
-    test_data = orig_data
+    test_data = orig_data.copy()
     test_data = cu.fill_nan_mean(test_data, col, 'int')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_mean_float():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'float'
     test_data = cu.fill_nan_mean(test_data, col, 'float')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_median_int():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'int'
     test_data = cu.fill_nan_median(test_data, col, 'int')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_median_float():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'float'
     test_data = cu.fill_nan_median(test_data, col, 'float')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_mode_int():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'int'
     test_data = cu.fill_nan_mode(test_data, col, 'int')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_mode_float():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'float'
     test_data = cu.fill_nan_mode(test_data, col, 'float')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_range_int():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'int'
     test_data = cu.fill_nan_range(test_data, col, cast_type='int')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_range_float():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'float'
     test_data = cu.fill_nan_range(test_data, col, cast_type='float')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_user_range_int():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'int'
     test_data = cu.fill_nan_user_range(test_data, col,
                                        data_max=100, data_min=-150,
@@ -79,7 +79,7 @@ def test_fill_nan_user_range_int():
 
 
 def test_fill_nan_user_range_float():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'float'
     test_data = cu.fill_nan_user_range(test_data, col,
                                        data_max=100.52, data_min=-150.2,
@@ -88,21 +88,21 @@ def test_fill_nan_user_range_float():
 
 
 def test_fill_nan_range_date_yyyymmdd():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'Date'
     test_data = cu.fill_nan_range_date(test_data, col, date_fmt='%Y/%m/%d')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_range_date_timestamp():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'Datetime'
     test_data = cu.fill_nan_range_date(test_data, col, date_fmt='%Y%m%d %H:%M:%S')
     assert test_data[col].isnull().sum() == 0
 
 
 def test_fill_nan_user_range_date():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'Datetime'
     data_max = pd.to_datetime('2020-12-31 23:59:59')
     data_min = pd.to_datetime('2010-01-01 00:00:00')
@@ -113,7 +113,7 @@ def test_fill_nan_user_range_date():
 
 
 def test_fill_nan_list():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'ID'
     test_list = ['0001', '0002', '0003']
     test_data = cu.fill_nan_list(test_data, col, test_list)
@@ -121,7 +121,7 @@ def test_fill_nan_list():
 
 
 def test_fill_nan_list_weights():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'ID'
     test_list = ['0001', '0002', '0003']
     weights = [1, 0, 0]
@@ -130,7 +130,7 @@ def test_fill_nan_list_weights():
 
 
 def test_create_current_weights_names():
-    test_data = orig_data
+    test_data = orig_data.copy()
     col = 'str'
     test_weights, test_names = cu.create_current_weights_names(test_data, col)
     assert test_weights == [1/5, 1/5, 1/5, 1/5, 1/5]
@@ -151,6 +151,6 @@ def test_update_dataframe():
 
 
 def test_missing_rate():
-    test_data = pd.read_csv('../data/test.csv')
+    test_data = orig_data.copy()
     missing_rate, total_missing = cu.missing_rate(test_data)
     assert total_missing == 1/6
