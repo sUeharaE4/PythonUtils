@@ -3,6 +3,10 @@ import numpy as np
 from logging import getLogger, INFO, StreamHandler, Formatter
 
 logger = getLogger(__name__)
+# ログの追加フォーマット
+extra_args = {}
+extra_args['tab'] = '\t'
+extra_args['FUNC_NAME'] = ''
 
 
 class CleansingUtils:
@@ -21,8 +25,9 @@ class CleansingUtils:
         handler.setLevel(log_level)
         logger.setLevel(log_level)
         logger.addHandler(handler)
-        formatter = Formatter('%(asctime)s : %(lineno)d : '
-                              '%(funcName)s %(message)s')
+        formatter = Formatter('TIME:%(asctime)s%(tab)sLEVEL:%(levelname)s%(tab)s'
+                              'FUNC_NAME:%(FUNC_NAME)s%(tab)sLINES:%(lineno)d%(tab)s'
+                              'MESSAGE:%(message)s')
         handler.setFormatter(formatter)
         logger.propagate = False
 
@@ -49,6 +54,11 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
+        func_name = 'fill_nan_mean'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
+
         fill_data = orig_data.copy(deep_copy)
         fill_data[col_name] = \
             fill_data[col_name].fillna(fill_data[col_name].mean())
@@ -56,7 +66,9 @@ class CleansingUtils:
         if cast_type is not None:
             cls.__cast_type(fill_data, col_name, cast_type)
 
-        logger.debug('end. col_name : ' + col_name)
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -82,6 +94,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
+        func_name = 'fill_nan_median'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
         fill_data = orig_data.copy(deep_copy)
         fill_data[col_name] = \
             fill_data[col_name].fillna(fill_data[col_name].median())
@@ -89,7 +105,9 @@ class CleansingUtils:
         if cast_type is not None:
             cls.__cast_type(fill_data, col_name, cast_type)
 
-        logger.debug('end. col_name : ' + col_name)
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -115,6 +133,11 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
+        func_name = 'fill_nan_mode'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
+
         fill_data = orig_data.copy(deep_copy)
         fill_data[col_name] = \
             orig_data[col_name].fillna(orig_data[col_name].mode())
@@ -122,7 +145,9 @@ class CleansingUtils:
         if cast_type is not None:
             cls.__cast_type(fill_data, col_name, cast_type)
 
-        logger.debug('end. col_name : ' + col_name)
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -150,6 +175,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
+        func_name = 'fill_nan_range'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
         fill_data = orig_data.copy(deep_copy)
         np.random.seed(seed)
         # 最大最小とその幅を取得
@@ -159,7 +188,10 @@ class CleansingUtils:
         fill_data = cls.__fill_range(fill_data, col_name,
                                      data_max, data_min,
                                      seed, cast_type)
-        logger.debug('end. col_name : ' + col_name)
+
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -192,13 +224,20 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_data_range(data_max, data_min)
+        func_name = 'fill_nan_user_range'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
+
         fill_data = orig_data.copy(deep_copy)
         # 指定した値の範囲でNaNを埋める関数の呼び出し
         fill_data = cls.__fill_range(fill_data, col_name,
                                      data_max, data_min,
                                      seed, cast_type)
 
-        logger.debug('end. col_name : ' + col_name)
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -226,6 +265,10 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
+        func_name = 'fill_nan_range_date'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
         fill_data = orig_data.copy(deep_copy)
 
         if date_fmt is not None:
@@ -239,7 +282,10 @@ class CleansingUtils:
         fill_data = cls.__fill_range_date(fill_data, col_name,
                                           data_max, data_min, seed=seed,
                                           date_fmt=date_fmt)
-        logger.debug('end. col_name : ' + col_name)
+
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -272,6 +318,11 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_data_range(data_max, data_min)
+        func_name = 'fill_nan_user_range_date'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
+
         fill_data = orig_data.copy(deep_copy)
 
         if date_fmt is not None:
@@ -282,7 +333,9 @@ class CleansingUtils:
         fill_data = cls.__fill_range_date(fill_data, col_name, data_max,
                                           data_min, seed=seed, date_fmt=date_fmt,
                                           )
-        logger.debug('end. col_name : ' + col_name)
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -311,8 +364,12 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
-        fill_data = orig_data.copy(deep_copy)
+        func_name = 'fill_nan_list'
+        start_log = cls.__make_fill_nan_log(orig_data, col_name,
+                                            func_name, 'Start')
+        logger.debug(start_log, extra=extra_args)
 
+        fill_data = orig_data.copy(deep_copy)
         np.random.seed(seed)
         # 要素数を取得
         data_len = len(from_list)
@@ -328,7 +385,10 @@ class CleansingUtils:
 
         # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
         cls.__fill_nan_rand(fill_data, col_name, rand_data)
-        logger.debug('end. col_name : ' + col_name)
+
+        end_log = cls.__make_fill_nan_log(fill_data, col_name,
+                                          func_name, 'End')
+        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -451,13 +511,16 @@ class CleansingUtils:
         """
         # すべてNaNだった場合はAssert
         cls.__assert_all_nan(orig_data, col_name)
+        func_name = 'create_current_weights_names'
+        extra_args['FUNC_NAME'] = func_name
+
         # 値の個数カウントと正規化
         dup_cnt = orig_data[col_name].value_counts().dropna()
         dup_cnt_std = dup_cnt / dup_cnt.sum()
         # 重みと名称リストの作成
         weights = dup_cnt_std.values.tolist()
         name_list = dup_cnt_std.index.tolist()
-        logger.debug('end. col_name : ' + col_name)
+        logger.debug('end. col_name : ' + col_name, extra=extra_args)
         return weights, name_list
 
     @classmethod
@@ -549,6 +612,32 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
+    def __make_fill_nan_log(cls, data_frame, col_name, func_name, start_end):
+        """
+        fill_nan 関数の開始ログメッセージを作成する
+
+        Parameters
+        ----------
+        data_frame : pandas.DataFrame
+            NaNを埋めたいDataFrame
+        col_name : str
+            NaNを埋めたいカラム名
+        func_name : str
+            呼び出し関数名
+        start_end : str
+            Start or End
+        Returns
+        -------
+        return_message : str
+            ログ出力メッセージ
+        """
+        extra_args['FUNC_NAME'] = func_name
+        nan_count = data_frame[col_name].isnull().sum()
+        return_message = start_end + ' -> ' + col_name + ' has ' + \
+                         str(nan_count) + ' NaN '
+        return return_message
+
+    @classmethod
     def update_dataframe(cls, target_data, source_data, pk_target, pk_source):
         """
         DataFrameのキーが一致するレコードを更新したDataFrameを返却する。
@@ -591,6 +680,8 @@ class CleansingUtils:
             tmp_dataframe.index = tmp_dataframe[pk].values
             return tmp_dataframe
 
+        func_name = 'update_dataframe'
+        extra_args['FUNC_NAME'] = func_name
         # 大小比較
         assert len(target_data) >= len(source_data), 'target is smaller than source.'
         # 元のindex と columns を退避
@@ -604,7 +695,7 @@ class CleansingUtils:
         # index, columns を再設定
         update_data = pd.DataFrame(tmp_target.values,
                                    index=index_values, columns=column_values)
-        logger.debug('end. ')
+        logger.debug('end. ', extra=extra_args)
         return update_data
 
     @classmethod
