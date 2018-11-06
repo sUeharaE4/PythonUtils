@@ -49,10 +49,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].mean())
         fill_data[col_name] = tmp_data
 
@@ -85,10 +82,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
         fill_data[col_name] = tmp_data
 
@@ -121,10 +115,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
         tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
         fill_data[col_name] = tmp_data
 
@@ -159,10 +150,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
         np.random.seed(seed)
         # 最大最小とその幅を取得
         data_max = orig_data[col_name].max()
@@ -205,10 +193,7 @@ class CleansingUtils:
         """
         cls.__assert_all_nan(orig_data, col_name)
         cls.__assert_data_range(data_max, data_min)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
         # 指定した値の範囲でNaNを埋める関数の呼び出し
         fill_data = cls.__fill_range(fill_data, col_name,
                                      data_max, data_min,
@@ -242,10 +227,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
 
         if date_fmt is not None:
             fill_data[col_name] = pd.to_datetime(fill_data[col_name],
@@ -292,10 +274,7 @@ class CleansingUtils:
         """
         cls.__assert_all_nan(orig_data, col_name)
         cls.__assert_data_range(data_max, data_min)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
 
         if date_fmt is not None:
             fill_data[col_name] = pd.to_datetime(fill_data[col_name],
@@ -335,10 +314,8 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        if deep_copy:
-            fill_data = orig_data.copy()
-        else:
-            fill_data = orig_data
+        fill_data = orig_data.copy(deep_copy)
+
         np.random.seed(seed)
         # 要素数を取得
         data_len = len(from_list)
@@ -650,7 +627,6 @@ class CleansingUtils:
         total_missing : float
             全体の欠損率
         """
-
         missing_rate = orig_data.isnull().sum() / len(orig_data)
         total_missing = orig_data.isnull().sum().sum() / orig_data.size
         return missing_rate, total_missing
