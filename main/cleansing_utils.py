@@ -54,7 +54,7 @@ class CleansingUtils:
             fill_data[col_name].fillna(fill_data[col_name].mean())
 
         if cast_type is not None:
-            cls.__cast_int(fill_data, col_name, cast_type)
+            cls.__cast_type(fill_data, col_name, cast_type)
 
         logger.debug('end. col_name : ' + col_name)
         return fill_data
@@ -87,7 +87,7 @@ class CleansingUtils:
             fill_data[col_name].fillna(fill_data[col_name].median())
 
         if cast_type is not None:
-            cls.__cast_int(fill_data, col_name, cast_type)
+            cls.__cast_type(fill_data, col_name, cast_type)
 
         logger.debug('end. col_name : ' + col_name)
         return fill_data
@@ -120,7 +120,7 @@ class CleansingUtils:
             orig_data[col_name].fillna(orig_data[col_name].mode())
 
         if cast_type is not None:
-            cls.__cast_int(fill_data, col_name, cast_type)
+            cls.__cast_type(fill_data, col_name, cast_type)
 
         logger.debug('end. col_name : ' + col_name)
         return fill_data
@@ -359,7 +359,7 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def __cast_int(cls, fill_data, col_name, cast_type):
+    def __cast_type(cls, fill_data, col_name, cast_type):
         """
         pandas.DataFrame にする際にFloatになってしまったカラムをintに変換する
 
@@ -500,7 +500,7 @@ class CleansingUtils:
         cls.__fill_nan_rand(fill_data, col_name, rand_data)
 
         if cast_type is not None:
-            cls.__cast_int(fill_data, col_name, cast_type)
+            cls.__cast_type(fill_data, col_name, cast_type)
         return fill_data
 
     @classmethod
