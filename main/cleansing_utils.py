@@ -191,7 +191,6 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
-        cls.__assert_all_nan(orig_data, col_name)
         cls.__assert_data_range(data_max, data_min)
         fill_data = orig_data.copy(deep_copy)
         # 指定した値の範囲でNaNを埋める関数の呼び出し
@@ -272,7 +271,6 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
-        cls.__assert_all_nan(orig_data, col_name)
         cls.__assert_data_range(data_max, data_min)
         fill_data = orig_data.copy(deep_copy)
 
@@ -313,7 +311,6 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
-        cls.__assert_all_nan(orig_data, col_name)
         fill_data = orig_data.copy(deep_copy)
 
         np.random.seed(seed)
