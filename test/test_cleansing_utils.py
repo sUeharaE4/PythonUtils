@@ -3,7 +3,6 @@ from logging import DEBUG
 import pandas as pd
 
 orig_data = pd.read_csv('../data/test.csv')
-col_names = orig_data.columns
 cu = Cu()
 cu.log_level = DEBUG
 
