@@ -50,8 +50,8 @@ class CleansingUtils:
         """
         cls.__assert_all_nan(orig_data, col_name)
         fill_data = orig_data.copy(deep_copy)
-        tmp_data = orig_data[col_name].fillna(orig_data[col_name].mean())
-        fill_data[col_name] = tmp_data
+        fill_data[col_name] = \
+            fill_data[col_name].fillna(fill_data[col_name].mean())
 
         if cast_type is not None:
             cls.__cast_int(fill_data, col_name, cast_type)
@@ -83,8 +83,8 @@ class CleansingUtils:
         """
         cls.__assert_all_nan(orig_data, col_name)
         fill_data = orig_data.copy(deep_copy)
-        tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
-        fill_data[col_name] = tmp_data
+        fill_data[col_name] = \
+            fill_data[col_name].fillna(fill_data[col_name].median())
 
         if cast_type is not None:
             cls.__cast_int(fill_data, col_name, cast_type)
@@ -116,8 +116,8 @@ class CleansingUtils:
         """
         cls.__assert_all_nan(orig_data, col_name)
         fill_data = orig_data.copy(deep_copy)
-        tmp_data = orig_data[col_name].fillna(orig_data[col_name].median())
-        fill_data[col_name] = tmp_data
+        fill_data[col_name] = \
+            orig_data[col_name].fillna(orig_data[col_name].median())
 
         if cast_type is not None:
             cls.__cast_int(fill_data, col_name, cast_type)
