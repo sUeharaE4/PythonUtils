@@ -117,7 +117,7 @@ class CleansingUtils:
         cls.__assert_all_nan(orig_data, col_name)
         fill_data = orig_data.copy(deep_copy)
         fill_data[col_name] = \
-            orig_data[col_name].fillna(orig_data[col_name].median())
+            orig_data[col_name].fillna(orig_data[col_name].mode())
 
         if cast_type is not None:
             cls.__cast_int(fill_data, col_name, cast_type)
