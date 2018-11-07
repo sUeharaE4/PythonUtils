@@ -25,9 +25,10 @@ class CleansingUtils:
         handler.setLevel(log_level)
         logger.setLevel(log_level)
         logger.addHandler(handler)
-        formatter = Formatter('TIME:%(asctime)s%(tab)sLEVEL:%(levelname)s%(tab)s'
-                              'FUNC_NAME:%(FUNC_NAME)s%(tab)sLINES:%(lineno)d%(tab)s'
-                              'MESSAGE:%(message)s')
+        formatter = \
+            Formatter('TIME:%(asctime)s%(tab)sLEVEL:%(levelname)s%(tab)s'
+                      'FUNC_NAME:%(FUNC_NAME)s%(tab)sLINES:%(lineno)d%(tab)s'
+                      'MESSAGE:%(message)s')
         handler.setFormatter(formatter)
         logger.propagate = False
 
