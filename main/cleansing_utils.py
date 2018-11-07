@@ -350,9 +350,9 @@ class CleansingUtils:
             元データ
         col_name : str
             対称のカラム名
-        from_list : list
+        from_list : List
             ランダムに抽出したい値のlist
-        weights : list
+        weights : List
             抽出時に重みづけしたい場合に指定。from_listと同じsizeで。
         seed : int
             シード。指定したければどうぞ。
@@ -633,8 +633,8 @@ class CleansingUtils:
         """
         extra_args['FUNC_NAME'] = func_name
         nan_count = data_frame[col_name].isnull().sum()
-        return_message = start_end + ' -> ' + col_name + ' has ' + \
-                         str(nan_count) + ' NaN '
+        return_message = \
+            start_end + ' -> ' + col_name + ' has ' + str(nan_count) + ' NaN '
         return return_message
 
     @classmethod
