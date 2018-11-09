@@ -34,6 +34,7 @@
 <span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">logging</span> <span class="k">import</span> <span class="n">getLogger</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">StreamHandler</span><span class="p">,</span> <span class="n">Formatter</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="c1"># ログの追加フォーマット</span>
@@ -58,9 +59,10 @@
         <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
-        <span class="n">formatter</span> <span class="o">=</span> <span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;TIME:</span><span class="si">%(asctime)s%(tab)s</span><span class="s1">LEVEL:</span><span class="si">%(levelname)s%(tab)s</span><span class="s1">&#39;</span>
-                              <span class="s1">&#39;FUNC_NAME:</span><span class="si">%(FUNC_NAME)s%(tab)s</span><span class="s1">LINES:</span><span class="si">%(lineno)d%(tab)s</span><span class="s1">&#39;</span>
-                              <span class="s1">&#39;MESSAGE:</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">formatter</span> <span class="o">=</span> \
+            <span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;TIME:</span><span class="si">%(asctime)s%(tab)s</span><span class="s1">LEVEL:</span><span class="si">%(levelname)s%(tab)s</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;FUNC_NAME:</span><span class="si">%(FUNC_NAME)s%(tab)s</span><span class="s1">LINES:</span><span class="si">%(lineno)d%(tab)s</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;MESSAGE:</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -86,22 +88,18 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 初期処理</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_mean&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
-
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_mean</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-        <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="c1"># NaN埋めとキャスト</span>
+            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">cast_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">__cast_type</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">cast_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">__cast_type</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
-
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_median"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_median">[docs]</a>    <span class="nd">@classmethod</span>
@@ -126,21 +124,18 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 初期処理</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_median&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_median</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-        <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">())</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="c1"># NaN埋めとキャスト</span>
+            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">cast_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">__cast_type</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">cast_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">__cast_type</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
-
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_mode"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_mode">[docs]</a>    <span class="nd">@classmethod</span>
@@ -165,22 +160,19 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 初期処理</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_mode&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
-
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_mode</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-        <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">())</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="c1"># NaN埋めとキャスト</span>
+            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">())</span>
 
-        <span class="k">if</span> <span class="n">cast_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">__cast_type</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cast_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">__cast_type</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
 
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_range"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_range">[docs]</a>    <span class="nd">@classmethod</span>
@@ -207,24 +199,20 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 初期処理</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_range&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_range</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-        <span class="c1"># 最大最小とその幅を取得</span>
-        <span class="n">data_max</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">data_min</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                     <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span>
-                                     <span class="n">seed</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
-
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="c1"># 最大最小とその幅を取得</span>
+            <span class="n">data_max</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">data_min</span> <span class="o">=</span> <span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
+                                         <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span>
+                                         <span class="n">seed</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_user_range"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_user_range">[docs]</a>    <span class="nd">@classmethod</span>
@@ -256,21 +244,16 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 初期処理</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_data_range</span><span class="p">(</span><span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_user_range&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
-
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_user_range</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-        <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                     <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span>
-                                     <span class="n">seed</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
-
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
+                                         <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span>
+                                         <span class="n">seed</span><span class="p">,</span> <span class="n">cast_type</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_range_date"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_range_date">[docs]</a>    <span class="nd">@classmethod</span>
@@ -297,28 +280,22 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 初期処理</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_range_date&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_range_date</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">date_fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
-                                                 <span class="nb">format</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
-
-        <span class="c1"># 最大最小とその幅を取得</span>
-        <span class="n">data_max</span> <span class="o">=</span> <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">data_min</span> <span class="o">=</span> <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range_date</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
-                                          <span class="n">date_fmt</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
-
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">date_fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
+                                                     <span class="nb">format</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
+            <span class="c1"># 最大最小とその幅を取得</span>
+            <span class="n">data_max</span> <span class="o">=</span> <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">data_min</span> <span class="o">=</span> <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range_date</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
+                                              <span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                                              <span class="n">date_fmt</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_user_range_date"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_user_range_date">[docs]</a>    <span class="nd">@classmethod</span>
@@ -351,24 +328,17 @@
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_data_range</span><span class="p">(</span><span class="n">data_max</span><span class="p">,</span> <span class="n">data_min</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_user_range_date&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
-
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_user_range_date</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">date_fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
-                                                 <span class="nb">format</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
-
-        <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
-        <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range_date</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">data_max</span><span class="p">,</span>
-                                          <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">date_fmt</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">,</span>
-                                          <span class="p">)</span>
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">date_fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">fill_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
+                                                     <span class="nb">format</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">)</span>
+            <span class="c1"># 指定した値の範囲でNaNを埋める関数の呼び出し</span>
+            <span class="n">fill_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_range_date</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">data_max</span><span class="p">,</span>
+                                              <span class="n">data_min</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">date_fmt</span><span class="o">=</span><span class="n">date_fmt</span><span class="p">,</span>
+                                              <span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
 <div class="viewcode-block" id="CleansingUtils.fill_nan_list"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.fill_nan_list">[docs]</a>    <span class="nd">@classmethod</span>
@@ -383,9 +353,9 @@
 <span class="sd">            元データ</span>
 <span class="sd">        col_name : str</span>
 <span class="sd">            対称のカラム名</span>
-<span class="sd">        from_list : list</span>
+<span class="sd">        from_list : List</span>
 <span class="sd">            ランダムに抽出したい値のlist</span>
-<span class="sd">        weights : list</span>
+<span class="sd">        weights : List</span>
 <span class="sd">            抽出時に重みづけしたい場合に指定。from_listと同じsizeで。</span>
 <span class="sd">        seed : int</span>
 <span class="sd">            シード。指定したければどうぞ。</span>
@@ -397,31 +367,25 @@
 <span class="sd">        fill_data : pandas.DataFrame</span>
 <span class="sd">            NaN を埋めたデータ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;fill_nan_list&#39;</span>
-        <span class="n">start_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                            <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">start_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
-
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fill_nan_list</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">fill_data</span> <span class="o">=</span> <span class="n">orig_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep_copy</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-        <span class="c1"># 要素数を取得</span>
-        <span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">from_list</span><span class="p">)</span>
-        <span class="c1"># 重みが与えられていない場合はすべて等しくする</span>
-        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">weights</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__create_default_weights</span><span class="p">(</span><span class="n">data_len</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">==</span> <span class="n">data_len</span><span class="p">,</span> \
-            <span class="s1">&#39;[</span><span class="si">{0}</span><span class="s1">] lenght(</span><span class="si">{1}</span><span class="s1">) is not much your input, &#39;</span> \
-            <span class="s1">&#39;input_len:[</span><span class="si">{2}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">data_len</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
-        <span class="c1"># ランダムな値の抽出</span>
-        <span class="n">rand_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">from_list</span><span class="p">,</span>
-                                     <span class="nb">len</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]),</span> <span class="n">p</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+        <span class="c1"># ログ生成</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="c1"># 要素数を取得</span>
+            <span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">from_list</span><span class="p">)</span>
+            <span class="c1"># 重みが与えられていない場合はすべて等しくする</span>
+            <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__create_default_weights</span><span class="p">(</span><span class="n">data_len</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">==</span> <span class="n">data_len</span><span class="p">,</span> \
+                <span class="s1">&#39;[</span><span class="si">{0}</span><span class="s1">] lenght(</span><span class="si">{1}</span><span class="s1">) is not much your input, &#39;</span> \
+                <span class="s1">&#39;input_len:[</span><span class="si">{2}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">data_len</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+            <span class="c1"># ランダムな値の抽出</span>
+            <span class="n">rand_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">from_list</span><span class="p">,</span>
+                                         <span class="nb">len</span><span class="p">(</span><span class="n">orig_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]),</span> <span class="n">p</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
-        <span class="c1"># NaN だったところのみ乱数を格納、元データがあった部分は何もしない</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_nan_rand</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">rand_data</span><span class="p">)</span>
-
-        <span class="n">end_log</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__make_fill_nan_log</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span>
-                                          <span class="n">func_name</span><span class="p">,</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">end_log</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+            <span class="c1"># NaN だったところのみ乱数を格納、元データがあった部分は何もしない</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__fill_nan_rand</span><span class="p">(</span><span class="n">fill_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">rand_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fill_data</span></div>
 
     <span class="nd">@classmethod</span>
@@ -544,7 +508,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># すべてNaNだった場合はAssert</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__assert_all_nan</span><span class="p">(</span><span class="n">orig_data</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;create_current_weights_names&#39;</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">create_current_weights_names</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">extra_args</span><span class="p">[</span><span class="s1">&#39;FUNC_NAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_name</span>
 
         <span class="c1"># 値の個数カウントと正規化</span>
@@ -645,9 +609,10 @@
         <span class="k">return</span> <span class="n">fill_data</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__make_fill_nan_log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">start_end</span><span class="p">):</span>
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">__make_fill_nan_log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data_frame</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        fill_nan 関数の開始ログメッセージを作成する</span>
+<span class="sd">        fill_nan 関数の開始終了ログメッセージを出力する</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -657,18 +622,23 @@
 <span class="sd">            NaNを埋めたいカラム名</span>
 <span class="sd">        func_name : str</span>
 <span class="sd">            呼び出し関数名</span>
-<span class="sd">        start_end : str</span>
-<span class="sd">            Start or End</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        return_message : str</span>
-<span class="sd">            ログ出力メッセージ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">create_message</span><span class="p">(</span><span class="n">start_end</span><span class="p">):</span>
+            <span class="n">nan_count</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">message</span> <span class="o">=</span> \
+                <span class="n">start_end</span> <span class="o">+</span> <span class="s1">&#39; -&gt; &#39;</span> <span class="o">+</span> <span class="n">col_name</span> <span class="o">+</span> <span class="s1">&#39; has &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nan_count</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; NaN &#39;</span>
+
+            <span class="k">return</span> <span class="n">message</span>
+
         <span class="n">extra_args</span><span class="p">[</span><span class="s1">&#39;FUNC_NAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_name</span>
-        <span class="n">nan_count</span> <span class="o">=</span> <span class="n">data_frame</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">return_message</span> <span class="o">=</span> <span class="n">start_end</span> <span class="o">+</span> <span class="s1">&#39; -&gt; &#39;</span> <span class="o">+</span> <span class="n">col_name</span> <span class="o">+</span> <span class="s1">&#39; has &#39;</span> <span class="o">+</span> \
-                         <span class="nb">str</span><span class="p">(</span><span class="n">nan_count</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; NaN &#39;</span>
-        <span class="k">return</span> <span class="n">return_message</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">create_message</span><span class="p">(</span><span class="s1">&#39;Start&#39;</span><span class="p">),</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">create_message</span><span class="p">(</span><span class="s1">&#39;End&#39;</span><span class="p">),</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_args</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CleansingUtils.update_dataframe"><a class="viewcode-back" href="../../docs/main.html#main.cleansing_utils.CleansingUtils.update_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">update_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">target_data</span><span class="p">,</span> <span class="n">source_data</span><span class="p">,</span> <span class="n">pk_target</span><span class="p">,</span> <span class="n">pk_source</span><span class="p">):</span>
@@ -713,7 +683,7 @@
             <span class="n">tmp_dataframe</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">tmp_dataframe</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="k">return</span> <span class="n">tmp_dataframe</span>
 
-        <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;update_dataframe&#39;</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">update_dataframe</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">extra_args</span><span class="p">[</span><span class="s1">&#39;FUNC_NAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_name</span>
         <span class="c1"># 大小比較</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_data</span><span class="p">),</span> <span class="s1">&#39;target is smaller than source.&#39;</span>
