@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from logging import getLogger, INFO, StreamHandler, Formatter
+from contextlib import contextmanager
 
 logger = getLogger(__name__)
 # ログの追加フォーマット
@@ -54,22 +55,18 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
+        # 初期処理
         cls.__assert_all_nan(orig_data, col_name)
         func_name = cls.fill_nan_mean.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
-
         fill_data = orig_data.copy(deep_copy)
-        fill_data[col_name] = \
-            fill_data[col_name].fillna(fill_data[col_name].mean())
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            # NaN埋めとキャスト
+            fill_data[col_name] = \
+                fill_data[col_name].fillna(fill_data[col_name].mean())
+            if cast_type is not None:
+                cls.__cast_type(fill_data, col_name, cast_type)
 
-        if cast_type is not None:
-            cls.__cast_type(fill_data, col_name, cast_type)
-
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -94,21 +91,18 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
+        # 初期処理
         cls.__assert_all_nan(orig_data, col_name)
         func_name = cls.fill_nan_median.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
         fill_data = orig_data.copy(deep_copy)
-        fill_data[col_name] = \
-            fill_data[col_name].fillna(fill_data[col_name].median())
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            # NaN埋めとキャスト
+            fill_data[col_name] = \
+                fill_data[col_name].fillna(fill_data[col_name].median())
+            if cast_type is not None:
+                cls.__cast_type(fill_data, col_name, cast_type)
 
-        if cast_type is not None:
-            cls.__cast_type(fill_data, col_name, cast_type)
-
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -133,22 +127,19 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
+        # 初期処理
         cls.__assert_all_nan(orig_data, col_name)
         func_name = cls.fill_nan_mode.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
-
         fill_data = orig_data.copy(deep_copy)
-        fill_data[col_name] = \
-            orig_data[col_name].fillna(orig_data[col_name].mode())
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            # NaN埋めとキャスト
+            fill_data[col_name] = \
+                orig_data[col_name].fillna(orig_data[col_name].mode())
 
-        if cast_type is not None:
-            cls.__cast_type(fill_data, col_name, cast_type)
+            if cast_type is not None:
+                cls.__cast_type(fill_data, col_name, cast_type)
 
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
         return fill_data
 
     @classmethod
@@ -175,24 +166,20 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
+        # 初期処理
         cls.__assert_all_nan(orig_data, col_name)
         func_name = cls.fill_nan_range.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
         fill_data = orig_data.copy(deep_copy)
-        np.random.seed(seed)
-        # 最大最小とその幅を取得
-        data_max = orig_data[col_name].max()
-        data_min = orig_data[col_name].min()
-        # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range(fill_data, col_name,
-                                     data_max, data_min,
-                                     seed, cast_type)
-
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            np.random.seed(seed)
+            # 最大最小とその幅を取得
+            data_max = orig_data[col_name].max()
+            data_min = orig_data[col_name].min()
+            # 指定した値の範囲でNaNを埋める関数の呼び出し
+            fill_data = cls.__fill_range(fill_data, col_name,
+                                         data_max, data_min,
+                                         seed, cast_type)
         return fill_data
 
     @classmethod
@@ -224,21 +211,16 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
+        # 初期処理
         cls.__assert_data_range(data_max, data_min)
         func_name = cls.fill_nan_user_range.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
-
         fill_data = orig_data.copy(deep_copy)
-        # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range(fill_data, col_name,
-                                     data_max, data_min,
-                                     seed, cast_type)
-
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            # 指定した値の範囲でNaNを埋める関数の呼び出し
+            fill_data = cls.__fill_range(fill_data, col_name,
+                                         data_max, data_min,
+                                         seed, cast_type)
         return fill_data
 
     @classmethod
@@ -265,28 +247,22 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
+        # 初期処理
         cls.__assert_all_nan(orig_data, col_name)
         func_name = cls.fill_nan_range_date.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
         fill_data = orig_data.copy(deep_copy)
-
-        if date_fmt is not None:
-            fill_data[col_name] = pd.to_datetime(fill_data[col_name],
-                                                 format=date_fmt)
-
-        # 最大最小とその幅を取得
-        data_max = fill_data[col_name].max()
-        data_min = fill_data[col_name].min()
-        # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range_date(fill_data, col_name,
-                                          data_max, data_min, seed=seed,
-                                          date_fmt=date_fmt)
-
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            if date_fmt is not None:
+                fill_data[col_name] = pd.to_datetime(fill_data[col_name],
+                                                     format=date_fmt)
+            # 最大最小とその幅を取得
+            data_max = fill_data[col_name].max()
+            data_min = fill_data[col_name].min()
+            # 指定した値の範囲でNaNを埋める関数の呼び出し
+            fill_data = cls.__fill_range_date(fill_data, col_name,
+                                              data_max, data_min, seed=seed,
+                                              date_fmt=date_fmt)
         return fill_data
 
     @classmethod
@@ -320,23 +296,16 @@ class CleansingUtils:
         """
         cls.__assert_data_range(data_max, data_min)
         func_name = cls.fill_nan_user_range_date.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
-
         fill_data = orig_data.copy(deep_copy)
-
-        if date_fmt is not None:
-            fill_data[col_name] = pd.to_datetime(fill_data[col_name],
-                                                 format=date_fmt)
-
-        # 指定した値の範囲でNaNを埋める関数の呼び出し
-        fill_data = cls.__fill_range_date(fill_data, col_name, data_max,
-                                          data_min, seed=seed, date_fmt=date_fmt,
-                                          )
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            if date_fmt is not None:
+                fill_data[col_name] = pd.to_datetime(fill_data[col_name],
+                                                     format=date_fmt)
+            # 指定した値の範囲でNaNを埋める関数の呼び出し
+            fill_data = cls.__fill_range_date(fill_data, col_name, data_max,
+                                              data_min, seed=seed, date_fmt=date_fmt,
+                                              )
         return fill_data
 
     @classmethod
@@ -366,30 +335,24 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         func_name = cls.fill_nan_list.__name__
-        start_log = cls.__make_fill_nan_log(orig_data, col_name,
-                                            func_name, 'Start')
-        logger.debug(start_log, extra=extra_args)
-
         fill_data = orig_data.copy(deep_copy)
-        np.random.seed(seed)
-        # 要素数を取得
-        data_len = len(from_list)
-        # 重みが与えられていない場合はすべて等しくする
-        if weights is None:
-            weights = cls.__create_default_weights(data_len)
-        assert len(weights) == data_len, \
-            '[{0}] lenght({1}) is not much your input, ' \
-            'input_len:[{2}]'.format(col_name, data_len, len(weights))
-        # ランダムな値の抽出
-        rand_data = np.random.choice(from_list,
-                                     len(orig_data[col_name]), p=weights)
+        # ログ生成
+        with cls.__make_fill_nan_log(fill_data, col_name, func_name):
+            np.random.seed(seed)
+            # 要素数を取得
+            data_len = len(from_list)
+            # 重みが与えられていない場合はすべて等しくする
+            if weights is None:
+                weights = cls.__create_default_weights(data_len)
+            assert len(weights) == data_len, \
+                '[{0}] lenght({1}) is not much your input, ' \
+                'input_len:[{2}]'.format(col_name, data_len, len(weights))
+            # ランダムな値の抽出
+            rand_data = np.random.choice(from_list,
+                                         len(orig_data[col_name]), p=weights)
 
-        # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
-        cls.__fill_nan_rand(fill_data, col_name, rand_data)
-
-        end_log = cls.__make_fill_nan_log(fill_data, col_name,
-                                          func_name, 'End')
-        logger.info(end_log, extra=extra_args)
+            # NaN だったところのみ乱数を格納、元データがあった部分は何もしない
+            cls.__fill_nan_rand(fill_data, col_name, rand_data)
         return fill_data
 
     @classmethod
@@ -613,9 +576,10 @@ class CleansingUtils:
         return fill_data
 
     @classmethod
-    def __make_fill_nan_log(cls, data_frame, col_name, func_name, start_end):
+    @contextmanager
+    def __make_fill_nan_log(cls, data_frame, col_name, func_name):
         """
-        fill_nan 関数の開始終了ログメッセージを作成する
+        fill_nan 関数の開始終了ログメッセージを出力する
 
         Parameters
         ----------
@@ -625,18 +589,23 @@ class CleansingUtils:
             NaNを埋めたいカラム名
         func_name : str
             呼び出し関数名
-        start_end : str
-            Start or End
         Returns
         -------
-        return_message : str
-            ログ出力メッセージ
         """
+
+        def create_message(start_end):
+            nan_count = data_frame[col_name].isnull().sum()
+            message = \
+                start_end + ' -> ' + col_name + ' has ' + str(nan_count) + ' NaN '
+
+            return message
+
         extra_args['FUNC_NAME'] = func_name
-        nan_count = data_frame[col_name].isnull().sum()
-        return_message = \
-            start_end + ' -> ' + col_name + ' has ' + str(nan_count) + ' NaN '
-        return return_message
+        logger.debug(create_message('Start'), extra=extra_args)
+        try:
+            yield
+        finally:
+            logger.debug(create_message('End'), extra=extra_args)
 
     @classmethod
     def update_dataframe(cls, target_data, source_data, pk_target, pk_source):
