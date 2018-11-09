@@ -55,7 +55,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        func_name = 'fill_nan_mean'
+        func_name = cls.fill_nan_mean.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -95,7 +95,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        func_name = 'fill_nan_median'
+        func_name = cls.fill_nan_median.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -134,7 +134,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        func_name = 'fill_nan_mode'
+        func_name = cls.fill_nan_mode.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -176,7 +176,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        func_name = 'fill_nan_range'
+        func_name = cls.fill_nan_range.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -225,7 +225,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_data_range(data_max, data_min)
-        func_name = 'fill_nan_user_range'
+        func_name = cls.fill_nan_user_range.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -266,7 +266,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_all_nan(orig_data, col_name)
-        func_name = 'fill_nan_range_date'
+        func_name = cls.fill_nan_range_date.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -319,7 +319,7 @@ class CleansingUtils:
             NaN を埋めたデータ
         """
         cls.__assert_data_range(data_max, data_min)
-        func_name = 'fill_nan_user_range_date'
+        func_name = cls.fill_nan_user_range_date.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -365,7 +365,7 @@ class CleansingUtils:
         fill_data : pandas.DataFrame
             NaN を埋めたデータ
         """
-        func_name = 'fill_nan_list'
+        func_name = cls.fill_nan_list.__name__
         start_log = cls.__make_fill_nan_log(orig_data, col_name,
                                             func_name, 'Start')
         logger.debug(start_log, extra=extra_args)
@@ -512,7 +512,7 @@ class CleansingUtils:
         """
         # すべてNaNだった場合はAssert
         cls.__assert_all_nan(orig_data, col_name)
-        func_name = 'create_current_weights_names'
+        func_name = cls.create_current_weights_names.__name__
         extra_args['FUNC_NAME'] = func_name
 
         # 値の個数カウントと正規化
@@ -615,7 +615,7 @@ class CleansingUtils:
     @classmethod
     def __make_fill_nan_log(cls, data_frame, col_name, func_name, start_end):
         """
-        fill_nan 関数の開始ログメッセージを作成する
+        fill_nan 関数の開始終了ログメッセージを作成する
 
         Parameters
         ----------
@@ -681,7 +681,7 @@ class CleansingUtils:
             tmp_dataframe.index = tmp_dataframe[pk].values
             return tmp_dataframe
 
-        func_name = 'update_dataframe'
+        func_name = cls.update_dataframe.__name__
         extra_args['FUNC_NAME'] = func_name
         # 大小比較
         assert len(target_data) >= len(source_data), 'target is smaller than source.'
