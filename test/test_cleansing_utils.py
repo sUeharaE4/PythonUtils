@@ -54,6 +54,23 @@ def test_fill_nan_mode_float():
     assert test_data[col].isnull().sum() == 0
 
 
+def test_fill_nan_median_random_int():
+    test_data = orig_data.copy()
+    col = 'int'
+    test_data = cu.fill_nan_median_random(test_data, col,
+                                          fill_range=None, cast_type='int')
+    assert test_data[col].isnull().sum() == 0
+
+
+def test_fill_nan_median_random_float():
+    test_data = orig_data.copy()
+    col = 'float'
+    fill_range = [10000.0, -0.5]
+    test_data = cu.fill_nan_median_random(test_data, col, fill_range=fill_range,
+                                          cast_type='float', deep_copy=True)
+    assert test_data[col].isnull().sum() == 0
+
+
 def test_fill_nan_range_int():
     test_data = orig_data.copy()
     col = 'int'
